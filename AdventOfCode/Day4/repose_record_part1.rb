@@ -9,8 +9,8 @@
 require 'date'
 lines = File.readlines("ReposeRecord.txt")
 
-dates = Array.new(934)
-deepDates = Array.new(934)
+dates = Array.new(17)
+deepDates = Array.new(17)
 x = 0
 
 
@@ -23,12 +23,12 @@ end
 
 dates = dates.sort
 
-newLines = Array.new(934)
+newLines = Array.new(17)
 i = 0
-while i < dates.size
+while i < dates.first(17).size
   date = dates[i]
   j = 0
-  while j < deepDates.size
+  while j < deepDates.first(17).size
     deepDate = deepDates[j]
     if date == deepDate
       newLines[i] = lines[j]
@@ -38,19 +38,27 @@ while i < dates.size
   i += 1
 end
 
-puts newLines
-timeAsleep = {}
+timeSlept = {}
 
 i = 0
-while i < lines.size
-  currentGuard = -1
-  line = lines[i]
+currentGuard = -1
+while i < newLines.first(17).size
+  line = newLines[i]
   splittedLine = line.split(" ")
   if splittedLine[2] == "Guard"
     currentGuard = splittedLine[3]
-    puts currentGuard
+    if timeSlept[currentGuard].nil?
+      timeSlept[currentGuard] = 0
+    end
   elsif splittedLine[2] == "falls"
-    
+    # Take minutes
+    fellAsleepAt = line.partition(":")[2][0..1].to_i
+  elsif splittedLine[2] == "wakes"
+    timeAsleep = line.partition(":")[2][0..1].to_i - fellAsleepAt.to_i
+    timeSlept[currentGuard] = timeSlept[currentGuard] + timeAsleep
   end
   i += 1
 end
+
+
+puts timeSlept.max_by{|k,v| v}
